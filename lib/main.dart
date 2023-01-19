@@ -23,9 +23,9 @@ class RemoveBackground extends StatefulWidget {
 }
 
 class _RemoveBackgroundState extends State<RemoveBackground> {
-  Uint8List? imageFile;
+  Uint8List? imageAsUint8List;
 
-  String? imagePath;
+  String? imagePathAsString;
 
   ScreenshotController controller = ScreenshotController();
 
@@ -57,7 +57,8 @@ class _RemoveBackgroundState extends State<RemoveBackground> {
               icon: const Icon(Icons.camera_alt)),
           IconButton(
               onPressed: () async {
-                imageFile = await ApiClient().removeBgApi(imagePath!);
+                imageAsUint8List =
+                    await ApiClient().removeBgApi(imagePathAsString!);
                 setState(() {});
               },
               icon: const Icon(Icons.delete)),
@@ -72,42 +73,36 @@ class _RemoveBackgroundState extends State<RemoveBackground> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            (imageFile != null)
+            (imageAsUint8List != null)
                 ? isSilhouetteModeOn
-                    ? Screenshot(
-                        controller: controller,
+                    ? Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.width,
                         child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.width,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                colorFilter: ColorFilter.mode(
-                                    Colors.black
-                                        .withOpacity(_currentImageOpacity),
-                                    BlendMode.srcIn),
-                                image: MemoryImage(imageFile!),
-                              ),
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              colorFilter: ColorFilter.mode(
+                                  Colors.black
+                                      .withOpacity(_currentImageOpacity),
+                                  BlendMode.srcIn),
+                              image: MemoryImage(imageAsUint8List!),
                             ),
                           ),
                         ),
                       )
-                    : Screenshot(
-                        controller: controller,
+                    : Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.width,
                         child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.width,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                colorFilter: ColorFilter.mode(
-                                    Colors.black
-                                        .withOpacity(_currentImageOpacity),
-                                    BlendMode.dstATop),
-                                image: MemoryImage(imageFile!),
-                              ),
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              colorFilter: ColorFilter.mode(
+                                  Colors.black
+                                      .withOpacity(_currentImageOpacity),
+                                  BlendMode.dstATop),
+                              image: MemoryImage(imageAsUint8List!),
                             ),
                           ),
                         ),
@@ -168,16 +163,16 @@ class _RemoveBackgroundState extends State<RemoveBackground> {
     );
   }
 
-  void getImage(ImageSource source) async {
+  void getImage(ImageSource imageSource) async {
     try {
-      final pickedImage = await ImagePicker().pickImage(source: source);
+      final pickedImage = await ImagePicker().pickImage(source: imageSource);
       if (pickedImage != null) {
-        imagePath = pickedImage.path;
-        imageFile = await pickedImage.readAsBytes();
+        imagePathAsString = pickedImage.path;
+        imageAsUint8List = await pickedImage.readAsBytes();
         setState(() {});
       }
     } catch (e) {
-      imageFile = null;
+      imageAsUint8List = null;
       setState(() {});
     }
   }
